@@ -1,28 +1,30 @@
-const API_URL = 'http://localhost:3000/api/books';
-const booksTableBody = document.getElementById('booksTableBody');
-const bookModal = new bootstrap.Modal(document.getElementById('bookModal'));
-const bookForm = document.getElementById('bookForm');
-const bookIdInput = document.getElementById('bookId');
-const modalTitle = document.getElementById('bookModalLabel');
+// Ganti URL endpoint API ke media
+const API_URL = 'http://localhost:3000/api/media';
+
+const mediaTableBody = document.getElementById('mediaTableBody');
+const mediaModal = new bootstrap.Modal(document.getElementById('mediaModal'));
+const mediaForm = document.getElementById('mediaForm');
+const mediaIdInput = document.getElementById('mediaId');
+const modalTitle = document.getElementById('mediaModalLabel');
 const saveButton = document.getElementById('saveButton');
 const alertMessage = document.getElementById('alertMessage');
 
 // =======================================================
 // === 1. READ (GET) - Mengambil Data ====================
 // =======================================================
-async function fetchBooks() {
+async function fetchMedia() {
     try {
         const response = await fetch(API_URL);
         if (!response.ok) {
-            throw new Error('Gagal memuat buku: ' + response.statusText);
+            throw new Error('Gagal memuat data media: ' + response.statusText);
         }
-        const books = await response.json();
-        renderBooks(books);
+        const media = await response.json();
+        renderMedia(media);
     } catch (error) {
-        console.error('Error fetching books:', error);
-        booksTableBody.innerHTML = `
+        console.error('Error fetching media:', error);
+        mediaTableBody.innerHTML = `
             <tr>
-                <td colspan="4" class="text-center text-danger">
+                <td colspan="5" class="text-center text-danger">
                     Gagal terhubung ke API: ${error.message}
                 </td>
             </tr>
@@ -30,35 +32,38 @@ async function fetchBooks() {
     }
 }
 
-function renderBooks(books) {
-    booksTableBody.innerHTML = '';
-    if (books.length === 0) {
-        booksTableBody.innerHTML = `
+function renderMedia(media) {
+    mediaTableBody.innerHTML = '';
+    if (media.length === 0) {
+        mediaTableBody.innerHTML = `
             <tr>
-                <td colspan="4" class="text-center">Belum ada data buku.</td>
+                <td colspan="5" class="text-center">Belum ada data media.</td>
             </tr>
         `;
         return;
     }
-    books.forEach(book => {
-        const row = booksTableBody.insertRow();
-        row.insertCell().textContent = book.id;
-        row.insertCell().textContent = book.title;
-        row.insertCell().textContent = book.author;
+
+    media.forEach(item => {
+        const row = mediaTableBody.insertRow();
+        row.insertCell().textContent = item.id_media;
+        row.insertCell().textContent = item.judul;
+        row.insertCell().textContent = item.tahun_rilis;
+        row.insertCell().textContent = item.gendre;
+
         const actionsCell = row.insertCell();
 
         // Tombol Edit
         const editBtn = document.createElement('button');
         editBtn.className = 'btn btn-sm btn-info me-2';
         editBtn.textContent = 'Edit';
-        editBtn.onclick = () => prepareEdit(book.id, book.title, book.author);
+        editBtn.onclick = () => prepareEdit(item.id_media, item.judul, item.tahun_rilis, item.gendre);
         actionsCell.appendChild(editBtn);
 
         // Tombol Hapus
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'btn btn-sm btn-danger';
         deleteBtn.textContent = 'Hapus';
-        deleteBtn.onclick = () => deleteBook(book.id, book.title);
+        deleteBtn.onclick = () => deleteMedia(item.id_media, item.judul);
         actionsCell.appendChild(deleteBtn);
     });
 }
@@ -66,92 +71,99 @@ function renderBooks(books) {
 // =======================================================
 // === 2. CREATE & UPDATE (POST & PUT) ===================
 // =======================================================
-bookForm.addEventListener('submit', async (e) => {
+mediaForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = bookIdInput.value;
-    const title = document.getElementById('title').value;
-    const author = document.getElementById('author').value;
-    const method = id ? 'PUT' : 'POST';
-    const url = id ? `${API_URL}/${id}` : API_URL;
+
+    const id_media = mediaIdInput.value;
+    const judul = document.getElementById('judul').value;
+    const tahun_rilis = document.getElementById('tahun_rilis').value;
+    const gendre = document.getElementById('gendre').value;
+
+    const method = id_media ? 'PUT' : 'POST';
+    const url = id_media ? `${API_URL}/${id_media}` : API_URL;
 
     try {
         const response = await fetch(url, {
             method: method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, author })
+            body: JSON.stringify({ judul, tahun_rilis, gendre })
         });
+
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Gagal menyimpan buku.');
+            throw new Error(errorData.message || 'Gagal menyimpan media.');
         }
 
-        const actionText = id ? 'diperbarui' : 'ditambahkan';
-        showAlert(`Buku berhasil ${actionText}!`, 'success');
-        bookModal.hide();
-        fetchBooks(); // Muat ulang data
-        bookForm.reset();
+        const actionText = id_media ? 'diperbarui' : 'ditambahkan';
+        showAlert(`Media berhasil ${actionText}!`, 'success');
+        mediaModal.hide();
+        fetchMedia();
+        mediaForm.reset();
     } catch (error) {
-        console.error('Error saat menyimpan buku:', error);
-        showAlert(`Gagal menyimpan buku: ${error.message}`, 'danger');
+        console.error('Error saat menyimpan media:', error);
+        showAlert(`Gagal menyimpan media: ${error.message}`, 'danger');
     }
 });
 
-// Fungsi untuk menyiapkan modal mode "Create"
+// =======================================================
+// === 3. PREPARE FORM (CREATE & EDIT) ===================
+// =======================================================
 function prepareCreate() {
-    modalTitle.textContent = 'Tambah Buku Baru';
+    modalTitle.textContent = 'Tambah Media Baru';
     saveButton.textContent = 'Tambah';
-    bookIdInput.value = '';
-    bookForm.reset();
+    mediaIdInput.value = '';
+    mediaForm.reset();
 }
 
-// Fungsi untuk menyiapkan modal mode "Update"
-function prepareEdit(id, title, author) {
-    modalTitle.textContent = 'Edit Buku';
+function prepareEdit(id_media, judul, tahun_rilis, gendre) {
+    modalTitle.textContent = 'Edit Media';
     saveButton.textContent = 'Perbarui';
-    bookIdInput.value = id;
-    document.getElementById('title').value = title;
-    document.getElementById('author').value = author;
-    bookModal.show();
+    mediaIdInput.value = id_media;
+    document.getElementById('judul').value = judul;
+    document.getElementById('tahun_rilis').value = tahun_rilis;
+    document.getElementById('gendre').value = gendre;
+    mediaModal.show();
 }
 
 // =======================================================
-// === 3. DELETE (DELETE) ================================
+// === 4. DELETE (DELETE) ================================
 // =======================================================
-async function deleteBook(id, title) {
-    if (!confirm(`Yakin ingin menghapus buku: "${title}" (ID: ${id})?`)) {
+async function deleteMedia(id_media, judul) {
+    if (!confirm(`Yakin ingin menghapus media: "${judul}" (ID: ${id_media})?`)) {
         return;
     }
+
     try {
-        const response = await fetch(`${API_URL}/${id}`, {
-            method: 'DELETE'
-        });
-        if (response.status === 204) { // Status 204: No Content (berhasil dihapus)
-            showAlert(`Buku "${title}" berhasil dihapus.`, 'warning');
-            fetchBooks(); // Muat ulang data
+        const response = await fetch(`${API_URL}/${id_media}`, { method: 'DELETE' });
+
+        if (response.status === 204) {
+            showAlert(`Media "${judul}" berhasil dihapus.`, 'warning');
+            fetchMedia();
         } else if (response.status === 404) {
-            showAlert(`Buku dengan ID ${id} tidak ditemukan.`, 'danger');
+            showAlert(`Media dengan ID ${id_media} tidak ditemukan.`, 'danger');
         } else {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Gagal menghapus buku.');
+            throw new Error(errorData.message || 'Gagal menghapus media.');
         }
     } catch (error) {
-        console.error('Error saat menghapus buku:', error);
-        showAlert(`Gagal menghapus buku: ${error.message}`, 'danger');
+        console.error('Error saat menghapus media:', error);
+        showAlert(`Gagal menghapus media: ${error.message}`, 'danger');
     }
 }
 
 // =======================================================
-// === UTILITAS ==========================================
+// === 5. UTILITAS =======================================
 // =======================================================
 function showAlert(message, type) {
     alertMessage.textContent = message;
     alertMessage.className = `alert alert-${type}`;
     alertMessage.classList.remove('d-none');
-    // Hilangkan peringatan setelah 3 detik
     setTimeout(() => {
         alertMessage.classList.add('d-none');
     }, 3000);
 }
 
-// Panggil fungsi untuk memuat data saat halaman dimuat
-document.addEventListener('DOMContentLoaded', fetchBooks);
+// =======================================================
+// === 6. MULAI APLIKASI ================================
+// =======================================================
+document.addEventListener('DOMContentLoaded', fetchMedia);

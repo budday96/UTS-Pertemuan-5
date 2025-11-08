@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Buku REST API (Frontend)</title>
+    <title>Manajemen Media REST API (Frontend)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -29,11 +29,12 @@
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="card p-4">
+                <div class="card p-4 shadow-lg border-0">
+                    <h1 class="text-center text-secondary mb-4">Nusantara Flix</h1>
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="mb-0 fs-3 fw-bold text-primary">📚 Manajemen Buku</h1>
-                        <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#bookModal" onclick="prepareCreate()">
-                            <i class="bi bi-plus-lg"></i> Tambah Buku Baru
+                        <h1 class="mb-0 fs-3 fw-bold text-primary">🎬 Manajemen Media</h1>
+                        <button class="btn btn-success shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#mediaModal" onclick="prepareCreate()">
+                            <i class="bi bi-plus-lg me-2"></i> Tambah Media Baru
                         </button>
                     </div>
                     <div id="alertMessage" class="alert d-none" role="alert"></div>
@@ -41,15 +42,16 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:5%;">ID</th>
-                                    <th style="width:40%;">Judul</th>
-                                    <th style="width:35%;">Penulis</th>
-                                    <th style="width:20%;">Aksi</th>
+                                    <th style="width:10%;">ID</th>
+                                    <th style="width:35%;">Judul</th>
+                                    <th style="width:20%;">Tahun Rilis</th>
+                                    <th style="width:20%;">Gendre</th>
+                                    <th style="width:15%;">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="booksTableBody">
+                            <tbody id="mediaTableBody">
                                 <tr>
-                                    <td colspan="4" class="text-center text-secondary">Memuat data...</td>
+                                    <td colspan="5" class="text-center text-secondary">Memuat data...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -60,23 +62,27 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="bookModal" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
+    <div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content p-2">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title fw-semibold" id="bookModalLabel">Tambah/Edit Buku</h5>
+                    <h5 class="modal-title fw-semibold" id="mediaModalLabel">Tambah/Edit Media</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
-                    <form id="bookForm">
-                        <input type="hidden" id="bookId">
+                    <form id="mediaForm">
+                        <input type="hidden" id="mediaId">
                         <div class="mb-3">
-                            <label for="title" class="form-label">Judul Buku</label>
-                            <input type="text" class="form-control" id="title" required placeholder="Masukkan judul buku">
+                            <label for="judul" class="form-label">Judul</label>
+                            <input type="text" class="form-control" id="judul" required placeholder="Masukkan judul media">
                         </div>
                         <div class="mb-3">
-                            <label for="author" class="form-label">Penulis</label>
-                            <input type="text" class="form-control" id="author" required placeholder="Masukkan nama penulis">
+                            <label for="tahun_rilis" class="form-label">Tahun Rilis</label>
+                            <input type="number" class="form-control" id="tahun_rilis" required placeholder="Masukkan tahun rilis">
+                        </div>
+                        <div class="mb-3">
+                            <label for="gendre" class="form-label">Gendre</label>
+                            <input type="text" class="form-control" id="gendre" required placeholder="Masukkan gendre media (misal: Aksi, Drama)">
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Batal</button>
